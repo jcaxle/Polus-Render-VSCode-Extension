@@ -12,18 +12,30 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "menus": {
+    "editor/title": [
+      {
+        "command": "polus-render.openPolusRender",
+        "group": "navigation"
+      }
+    ],
+    "explorer/context": [
+      {
+        "when": "resourceExtname == .zarr",
+        "command": "polus-render.openPolusRender",
+        "group": "navigation"
+      },
+      {
+        "when": "resourceExtname == .tif",
+        "command": "polus-render.openPolusRender",
+        "group": "navigation"
+      }
+    ]
+    },
     "commands": [
       {
-        "command": "polus-render.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "polus-render.openCustomRender",
-        "title": "Open Custom Render"
-      },
-      {
-        "command": "polus-render.todo",
-        "title": "TODO"
+        "command": "polus-render.openPolusRender",
+        "title": "Open Polus Render"
       }
     ]
   },
