@@ -1,7 +1,7 @@
-import { spawn } from "child_process";
+import { exec } from "child_process";
 import * as vscode from "vscode";
-import getPort from 'get-port';
-var path = require('path');
+import * as getPort from 'get-port';
+import * as path from "path";
 
 export interface URL {
     url:string;
@@ -22,7 +22,7 @@ export interface PolusArgs {
  * Has the same functionality as polus-render; however, will only launch 
  * local file servers and does not build and embed IFrames.
  */
-export default class Polus {
+export class Polus {
     /**
      * Constructor which accepts arguments used for Polus Render
      * @param imageLocation : 
@@ -39,23 +39,11 @@ export default class Polus {
     
     /**
      * Launches localhost webserver
-     * @param url Url to launch in local server.
+     * @param url Url to launch in local server. Do not surround with quotes
      * @param port Port number to run webserver, 0 for 1st available port.
      */
     private launchServer(path:Path, port:number){
-        let child = spawn("npx", ["http-server", "--cors=\'*\'", "--port", port.toString(), path.path]);
-        child.stderr.setEncoding("utf8");
-
-        child.stderr.on("data", function (data) {
-            vscode.window.showErrorMessage(data.toString());
-        }); //vscode.window.showInformationMessage("Has finished running");
-      
-        child.on("close", function (code) {
-          //Here you can get the exit code of the script
-          vscode.window.showInformationMessage(
-            "http-server closed with code: : " + code?.toString(),
-          );
-        });
+        exec(`npx http-server --cors --port ${port} "${path.path}"`);
     }
 
 
@@ -70,9 +58,10 @@ export default class Polus {
 
         // Get imageLocation
         if ('url' in this.polusArgs.imageLocation){
-            imageLocation = `?imageUrl=${this.polusArgs.imageLocation.url}`;
+            imageLocation = this.polusArgs.imageLocation.url.length > 0 ?`?imageUrl=${this.polusArgs.imageLocation.url}` : "";
+            tifExtension = "";
         }
-        else{
+        else if(this.polusArgs.imageLocation.path.length > 0){
             let port = await getPort();
             this.launchServer(this.polusArgs.imageLocation, port);
             imageLocation = `?imageUrl=http://localhost:${port}/`;
@@ -83,26 +72,32 @@ export default class Polus {
             else{
                 tifExtension = "";
             }
-
+        }
+        else{
+            imageLocation = "";
+            tifExtension = "";
         }
         
         // Get overlayLocation
         if ('url' in this.polusArgs.overlayLocation){
-            overlayLocation = `&overlayUrl=${this.polusArgs.overlayLocation.url}`;
+            overlayLocation = this.polusArgs.overlayLocation.url.length > 0 ?`&overlayUrl=${this.polusArgs.overlayLocation.url}` : "";
             jsonExtension = "";
         }
-        else{
+        else if(this.polusArgs.overlayLocation.path.length > 0){
             let port = await getPort();
             this.launchServer(this.polusArgs.overlayLocation, port);
             overlayLocation = `&overlayUrl=http://localhost:${port}/`;
-
             jsonExtension = path.basename(this.polusArgs.overlayLocation.path);
+        }
+        else{
+            overlayLocation = "";
+            jsonExtension = "";
         }
 
         // Check render type
         if(this.polusArgs.useLocalRender){
             let port = await getPort();
-            this.launchServer({path:"apps/render-ui"}, port);
+            this.launchServer({path:"C:/Users/JeffChen/OneDrive - Axle Informatics/Documents/working/polus-render/src/polus-render/src/apps/render-ui/"}, port);
             renderBase = `http://localhost:${port}/`;
         }
         else{

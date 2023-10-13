@@ -2,8 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { InputBoxOptions } from "vscode";
-import { spawn } from "child_process";
-var path = require("path");
+import {URL, Path, PolusArgs, Polus} from "./polus-render";
 
 /**
  * Prompts the user to enter image URL
@@ -12,7 +11,7 @@ var path = require("path");
  * - If specified, returns nonempty string
  * - if cancelled, returned undefined
  */
-async function promptImage(): Promise<string | undefined> {
+async function promptImage(): Promise<Path | URL | undefined> {
   let imageLocation = await vscode.window.showInputBox({
     title: "Enter Image URL",
     prompt: "Enter to submit URL, leave blank to skip, ESC to open file picker",
@@ -53,14 +52,14 @@ async function promptImage(): Promise<string | undefined> {
     }
 
     if (selectedFile) {
-      imageLocation = selectedFile[0].fsPath;
+      return {path:selectedFile[0].fsPath};
     }
     // Since user cancelled both prompts, skip opening render
     else {
       return;
     }
   }
-  return imageLocation;
+  return {url:imageLocation};
 }
 
 /**
@@ -70,7 +69,7 @@ async function promptImage(): Promise<string | undefined> {
  * - If specified, returns nonempty string
  * - if cancelled, returned undefined
  */
-async function promptOverlay(): Promise<string | undefined> {
+async function promptOverlay(): Promise<Path | URL | undefined> {
   let overlayLocation = await vscode.window.showInputBox({
     title: "Enter Overlay URL",
     prompt: "Enter to submit URL, leave blank to skip, ESC to open file picker",
@@ -86,14 +85,14 @@ async function promptOverlay(): Promise<string | undefined> {
       filters: { Overlay: ["json"] },
     });
     if (selectedFile) {
-      overlayLocation = selectedFile[0].fsPath;
+      return {path:selectedFile[0].fsPath};
     }
     // Since user cancelled both prompts, skip opening render
     else {
       return;
     }
   }
-  return overlayLocation;
+  return {url:overlayLocation};
 }
 // TODO Adjust to not use python
 /**
@@ -102,65 +101,36 @@ async function promptOverlay(): Promise<string | undefined> {
  * @param overlayLocation: overlay location. Empty string if not specified
  * @param renderType: Acquired from promptRenderType
  */
-function buildRunRender(
-  imageLocation: string,
-  overlayLocation: string,
+async function buildRunRender(
+  imageLocation: Path|URL,
+  overlayLocation: Path | URL,
   renderType:
     | { label: string; description: string; target: string }
     | undefined,
 ) {
+  let isLocal;
+
   // Fix undefined if it occurs and make args ready for spawn
-  imageLocation = imageLocation.length > 0 ? imageLocation : imageLocation;
-  overlayLocation =
-    overlayLocation.length > 0 ? overlayLocation : overlayLocation;
-
-  let typeFlag = "";
   if (renderType !== undefined && renderType.target === "online") {
-    typeFlag = "-t";
+    isLocal = false;
   }
-  let absPath = path.resolve(
-    "C:/Users/JeffChen/OneDrive - Axle Informatics/Documents/working/polus-render/src/polus-render-wrapper.py",
+  else{
+    isLocal = true;
+  }
+
+  let args:PolusArgs = {imageLocation, overlayLocation, useLocalRender:isLocal};
+  let polus = new Polus(args);
+  let polusURL = await polus.render();
+  console.log(JSON.stringify(polusURL));
+
+  let panel = vscode.window.createWebviewPanel(
+    "render",
+    "Render",
+    vscode.ViewColumn.One,
+    { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] },
   );
+  panel.webview.html = buildHTML(polusURL.url);
 
-  // Build args
-  let args = ["-d", absPath];
-  if (imageLocation !== "") {
-    args.push("-i", imageLocation);
-  }
-  if (overlayLocation !== "") {
-    args.push("-o", overlayLocation);
-  }
-  if (typeFlag !== "") {
-    args.push("-t");
-  }
-
-  console.log(JSON.stringify(args));
-  let child = spawn("python", args);
-
-  child.stdout.setEncoding("utf8");
-  child.stdout.on("data", function (data) {
-    vscode.window.showInformationMessage(data.toString());
-    let panel = vscode.window.createWebviewPanel(
-      "render",
-      "Render",
-      vscode.ViewColumn.One,
-      { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] },
-    );
-    panel.webview.html = buildHTML(data.toString());
-  });
-  child.stderr.setEncoding("utf8");
-
-  child.stderr.on("data", function (data) {
-    vscode.window.showErrorMessage(data.toString());
-  }); //vscode.window.showInformationMessage("Has finished running");
-
-  child.on("close", function (code) {
-    //Here you can get the exit code of the script
-
-    vscode.window.showInformationMessage(
-      "Polus Render has closed with code: " + code?.toString(),
-    );
-  });
 }
 
 /**
@@ -224,7 +194,7 @@ function buildHTML(renderURL: string) {
             </head> 
               
             <body> 
-                <iframe src=${renderURL}"
+                <iframe src=${renderURL}
                         frameborder="0" 
                         marginheight="0" 
                         marginwidth="0" 
@@ -247,30 +217,18 @@ export function activate(context: vscode.ExtensionContext) {
     "polus-render.openPolusRender",
     async (ctx) => {
       let imageLocation = await promptImage();
-      console.log(imageLocation);
       if (imageLocation === undefined) {
         return;
       }
 
       let overlayLocation = await promptOverlay();
-      console.log(overlayLocation);
       if (overlayLocation === undefined) {
         return;
       }
 
       let renderType = await promptRenderType();
-
-      // Fix undefined if it occurs and make args ready for spawn
-      imageLocation = imageLocation.length > 0 ? imageLocation : imageLocation;
-      overlayLocation =
-        overlayLocation.length > 0 ? overlayLocation : overlayLocation;
-
-      let typeFlag = "";
-      if (renderType !== undefined && renderType.target === "online") {
-        typeFlag = "-t";
-      }
-      buildRunRender(imageLocation, overlayLocation, renderType);
-    },
+      await buildRunRender(imageLocation, overlayLocation, renderType);
+    }
   );
 
   /**
@@ -294,7 +252,7 @@ export function activate(context: vscode.ExtensionContext) {
     let renderType = await promptRenderType();
 
     // Run render
-    buildRunRender(path, overlayLocation, renderType);
+    await buildRunRender(path, overlayLocation, renderType);
   }
 
   // openZarr is a function which prompts the user to select between local/online render then opens
