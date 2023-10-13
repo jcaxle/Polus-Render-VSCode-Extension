@@ -60,6 +60,7 @@ async function promptImage(): Promise<string | undefined> {
       return;
     }
   }
+  return imageLocation;
 }
 
 /**
@@ -92,6 +93,7 @@ async function promptOverlay(): Promise<string | undefined> {
       return;
     }
   }
+  return overlayLocation;
 }
 // TODO Adjust to not use python
 /**
@@ -245,11 +247,13 @@ export function activate(context: vscode.ExtensionContext) {
     "polus-render.openPolusRender",
     async (ctx) => {
       let imageLocation = await promptImage();
+      console.log(imageLocation);
       if (imageLocation === undefined) {
         return;
       }
 
       let overlayLocation = await promptOverlay();
+      console.log(overlayLocation);
       if (overlayLocation === undefined) {
         return;
       }
@@ -281,12 +285,11 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    // Get Overlay
     let overlayLocation = await promptOverlay();
-
     if (overlayLocation === undefined) {
       return;
     }
+
     // Get render type
     let renderType = await promptRenderType();
 
@@ -303,7 +306,7 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  // openTif is the same as openZarr. Used b/c each command can only have 1 label
+  // openTif is the same as openZarr. Used b/c each command can only have 1 prompt
   let openTif = vscode.commands.registerCommand(
     "polus-render.openTif",
     async (ctx) => {
