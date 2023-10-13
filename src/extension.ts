@@ -26,7 +26,7 @@ async function promptImage(): Promise<string | undefined> {
         { label: "Zarr", description: "*.zarr", target: "zarr" },
         { label: "Tif", description: "*.ome.tif", target: "tif" },
       ],
-      { placeHolder: "Select the extension type of your dataset" }
+      { placeHolder: "Select the extension type of your dataset" },
     );
 
     if (imageType === undefined) {
@@ -103,7 +103,9 @@ async function promptOverlay(): Promise<string | undefined> {
 function buildRunRender(
   imageLocation: string,
   overlayLocation: string,
-  renderType: { label: string; description: string; target: string } | undefined
+  renderType:
+    | { label: string; description: string; target: string }
+    | undefined,
 ) {
   // Fix undefined if it occurs and make args ready for spawn
   imageLocation = imageLocation.length > 0 ? imageLocation : imageLocation;
@@ -115,7 +117,7 @@ function buildRunRender(
     typeFlag = "-t";
   }
   let absPath = path.resolve(
-    "C:/Users/JeffChen/OneDrive - Axle Informatics/Documents/working/polus-render/src/polus-render-wrapper.py"
+    "C:/Users/JeffChen/OneDrive - Axle Informatics/Documents/working/polus-render/src/polus-render-wrapper.py",
   );
 
   // Build args
@@ -140,7 +142,7 @@ function buildRunRender(
       "render",
       "Render",
       vscode.ViewColumn.One,
-      { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] }
+      { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] },
     );
     panel.webview.html = buildHTML(data.toString());
   });
@@ -154,7 +156,7 @@ function buildRunRender(
     //Here you can get the exit code of the script
 
     vscode.window.showInformationMessage(
-      "Polus Render has closed with code: " + code?.toString()
+      "Polus Render has closed with code: " + code?.toString(),
     );
   });
 }
@@ -179,7 +181,7 @@ async function promptRenderType(): Promise<
         target: "local",
       },
     ],
-    { placeHolder: "Select which build you would like to use" }
+    { placeHolder: "Select which build you would like to use" },
   );
 }
 
@@ -264,25 +266,51 @@ export function activate(context: vscode.ExtensionContext) {
         typeFlag = "-t";
       }
       buildRunRender(imageLocation, overlayLocation, renderType);
-    }
+    },
   );
+
+  /**
+   * User selected .zarr or .tif command action
+   * @param ctx obtained from vscode command on .zarr or .tif context menus
+   * @returns
+   */
+  async function withImage(ctx: any) {
+    let path = ctx.fsPath;
+    // path must be specified
+    if (path === undefined) {
+      return;
+    }
+
+    // Get Overlay
+    let overlayLocation = await promptOverlay();
+
+    if (overlayLocation === undefined) {
+      return;
+    }
+    // Get render type
+    let renderType = await promptRenderType();
+
+    // Run render
+    buildRunRender(path, overlayLocation, renderType);
+  }
+
   // openZarr is a function which prompts the user to select between local/online render then opens
   // render with provided zarr file
   let openZarr = vscode.commands.registerCommand(
     "polus-render.openZarr",
     async (ctx) => {
-      let path = ctx.path;
-
-      // path must be specified
-      if (path === undefined) {
-        return;
-      }
-
-      // Get render type
-      let renderType = await promptRenderType();
-    }
+      withImage(ctx);
+    },
   );
-  context.subscriptions.push(customRender, openZarr);
+
+  // openTif is the same as openZarr. Used b/c each command can only have 1 label
+  let openTif = vscode.commands.registerCommand(
+    "polus-render.openTif",
+    async (ctx) => {
+      withImage(ctx);
+    },
+  );
+  context.subscriptions.push(customRender, openZarr, openTif);
 }
 
 // This method is called when your extension is deactivated

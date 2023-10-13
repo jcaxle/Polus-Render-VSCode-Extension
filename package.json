@@ -22,11 +22,15 @@
     "explorer/context": [
       {
         "when": "resourceExtname == .zarr",
-        "command": "polus-render.openPolusRender",
+        "command": "polus-render.openZarr",
         "group": "navigation"
       },
       {
         "when": "resourceExtname == .tif",
+        "command": "polus-render.openTif",
+        "group": "navigation"
+      },
+      {
         "command": "polus-render.openPolusRender",
         "group": "navigation"
       }
@@ -36,6 +40,14 @@
       {
         "command": "polus-render.openPolusRender",
         "title": "Open Polus Render"
+      },
+      {
+        "command": "polus-render.openZarr",
+        "title": "Open .zarr with Polus Render"
+      },
+      {
+        "command": "polus-render.openTif",
+        "title": "Open .ome.tif with Polus Render"
       }
     ]
   },
