@@ -1,7 +1,5 @@
 import { exec } from "child_process";
-import * as vscode from "vscode";
 import * as getPort from 'get-port';
-import * as path from "path";
 
 export interface URL {
     url:string;
@@ -14,7 +12,7 @@ export interface Path {
 export interface PolusArgs {
     imageLocation:URL|Path,
     overlayLocation:URL|Path,
-    useLocalRender:boolean
+    useLocalRender:boolean,
 }
 
 /**
@@ -53,51 +51,39 @@ export class Polus {
      * 
      * Returns: Polus Render's URL
      */
-    public async render(): Promise<URL>{
-        let imageLocation, tifExtension, overlayLocation, renderBase, jsonExtension;
-
+    public async render(context:any): Promise<URL>{
+        let imageLocation, overlayLocation, renderBase;
         // Get imageLocation
         if ('url' in this.polusArgs.imageLocation){
             imageLocation = this.polusArgs.imageLocation.url.length > 0 ?`?imageUrl=${this.polusArgs.imageLocation.url}` : "";
-            tifExtension = "";
         }
         else if(this.polusArgs.imageLocation.path.length > 0){
             let port = await getPort();
             this.launchServer(this.polusArgs.imageLocation, port);
             imageLocation = `?imageUrl=http://localhost:${port}/`;
-
-            if(this.polusArgs.imageLocation.path.endsWith("tif")){
-                tifExtension = path.basename(this.polusArgs.imageLocation.path);
-            }
-            else{
-                tifExtension = "";
-            }
         }
         else{
             imageLocation = "";
-            tifExtension = "";
         }
         
         // Get overlayLocation
         if ('url' in this.polusArgs.overlayLocation){
             overlayLocation = this.polusArgs.overlayLocation.url.length > 0 ?`&overlayUrl=${this.polusArgs.overlayLocation.url}` : "";
-            jsonExtension = "";
         }
         else if(this.polusArgs.overlayLocation.path.length > 0){
             let port = await getPort();
             this.launchServer(this.polusArgs.overlayLocation, port);
             overlayLocation = `&overlayUrl=http://localhost:${port}/`;
-            jsonExtension = path.basename(this.polusArgs.overlayLocation.path);
         }
         else{
             overlayLocation = "";
-            jsonExtension = "";
         }
 
         // Check render type
         if(this.polusArgs.useLocalRender){
             let port = await getPort();
-            this.launchServer({path:"C:/Users/JeffChen/OneDrive - Axle Informatics/Documents/working/polus-render/src/polus-render/src/apps/render-ui/"}, port);
+            console.log(context)
+            this.launchServer({path:context}, port);
             renderBase = `http://localhost:${port}/`;
         }
         else{
@@ -105,6 +91,7 @@ export class Polus {
         }
 
         // Build Render URL and return it
-        return {url:`${renderBase}${imageLocation}${tifExtension}${overlayLocation}${jsonExtension}`};
+        console.log(`${renderBase}${imageLocation}${overlayLocation}`);
+        return {url:`${renderBase}${imageLocation}${overlayLocation}`};
     }
 }
