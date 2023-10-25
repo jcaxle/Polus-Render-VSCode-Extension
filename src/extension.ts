@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import { InputBoxOptions } from "vscode";
 import { URL, Path, PolusArgs, Polus } from "./polus-render";
+import {exec} from "child_process";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -150,6 +151,7 @@ export function activate(context: vscode.ExtensionContext) {
     let polusURL = await polus.render(
       context.asAbsolutePath("src/apps/render-ui"),
     );
+    console.log(JSON.stringify(polusURL))
 
     let panel = vscode.window.createWebviewPanel(
       "render",
@@ -158,6 +160,19 @@ export function activate(context: vscode.ExtensionContext) {
       { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] },
     );
     panel.webview.html = buildHTML(polusURL.url);
+
+    panel.onDidDispose(
+      () => {
+        // Clear all ports used when tab is closed
+        polusURL.ports.forEach((port) => {
+          exec(`npx kill-port ${port}`, function (error, stdout, stderr) {
+            console.log(stdout);
+          });
+        });
+      },
+      null,
+      context.subscriptions
+    );
   }
 
   /**
