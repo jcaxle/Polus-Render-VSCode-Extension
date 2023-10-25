@@ -12,6 +12,26 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Polus-Render",
+      "properties": {
+        "prompt.overlay.disable" : {
+          "description": "Displays a prompt asking the user to choose an overlay with \"open with Render\" context menu option.",
+          "type" : "boolean",
+          "default": "True"
+        },
+        "prompt.polus.type.disable" : {
+          "description": "Displays a prompt asking the user to choose to use either online or local build of Render with \"open with Render\" context menu option.",
+          "type": "boolean",
+          "default": "True"
+        },
+        "prompt.default.local" : {
+          "description": "Use local build of Render by default.",
+          "type": "boolean",
+          "default": "True"
+        }
+      }
+    },
     "menus": {
       "editor/title": [
         {
@@ -51,6 +71,7 @@
       }
     ]
   },
+
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
