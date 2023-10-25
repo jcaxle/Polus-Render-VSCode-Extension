@@ -2,6 +2,7 @@
   "name": "polus-render",
   "displayName": "polus-render",
   "description": "Access functionality of polus-render Pypi package from VSCode.",
+  "icon": "images/icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.83.0"
