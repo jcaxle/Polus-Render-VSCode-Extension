@@ -1,6 +1,6 @@
 # Polus-Render VSCode-Ext
 VSCode extension based on the [polus-render python package](https://github.com/jcaxle/polus-render)
-![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/23fc3914-cb9f-45af-b481-ad27b8ee9a53)
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/3361aca5-441b-44c5-844a-98148c00d400)
 
 Render application is loaded in an iframe within VSCode's Webview API. The extension allows pointing the iframe at:
 * Render deployed to a server
@@ -9,12 +9,14 @@ Render application is loaded in an iframe within VSCode's Webview API. The exten
 
 **The are three ways to load the data:**
 1. Right clicking a .zarr or .ome.tif file in the VSCode explorer and selecting "open * with Polus Render".
-> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/d11947bb-a516-49de-8df8-44ae8c7d8a8a)
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/b2bac219-93fe-4adf-a9be-5e9843139246)
 2. Right clicking a file or empty space in the VSCode explorer and selecting "open Render" and following the prompts.
-> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/1eb4f287-e675-4e04-bac2-b4610b5c0dc9)
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/154b2224-d880-4878-b4ec-b19cf2858810)
 3. Clicking "open Render" located on the top right of an opened editor and following the prompts.
-> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/e749d54d-1599-467a-9bd4-b5c3c54dd889)
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/afd390bd-d244-4d85-89b0-dbccdcb8f4d3)
 
+# Demo
+TODO
 # Installation
 TODO VSCODE URL
 
@@ -71,8 +73,19 @@ is accurate as of 10/4/2023.
 
 For local version of Zarr/TIF Drag & Drop, `.zarr` is not supported. Only `.ome.tif` image files are accepted. 
 
+# Prompt Navigation
+## Image Prompt
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/5e5418cf-8d63-4fe6-8dba-c511dad28d9a)
+- Enter a url or file path to an image file to load. If you would like to load a file from the file explorer, type ESC and choose the image type. The fiie explorer will open afterwards,
+## Overlay Prompt
+- Similar prompt as Image Prompt
+- Enter a url or file path to a overlay file to load. Type ESC to open a file explorer where you can select an overlay file from.
+
+## Render Type Prompt
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/d21312a4-091c-45ec-8ee7-970ebdf120f7)
+- Select either to use local vs online render. Check [local build vs online](https://github.com/jcaxle/Polus-Render-VSCode-Extension/edit/dev/README.md#render-local-build-vs-online) section for details on differences.
 # Configuration
-![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/e93db393-8660-4148-9a91-6703fe049afa)
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/c431caa4-1fa2-4bbf-8f70-c01c8c9585d4)
 
 Options are all enabled by default.
 - Prompt>Default:Local - Enable to use local build of render by default, Disable for online build of render by default.
