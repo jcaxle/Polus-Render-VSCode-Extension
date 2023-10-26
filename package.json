@@ -1,14 +1,21 @@
 {
   "name": "polus-render",
   "displayName": "polus-render",
-  "description": "Access functionality of polus-render Pypi package from VSCode.",
+  "description": "Embed Polus Render into VSCode",
   "icon": "images/icon.png",
+  "publisher": "jcaxle",
   "version": "0.0.1",
+  "keywords": ["polus", "render", "zarr", "ome.tif", "science"],
+  "preview": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcaxle/Polus-Render-VSCode-Extension"
+  },
   "engines": {
     "vscode": "^1.83.0"
   },
   "categories": [
-    "Other"
+    "Data Science", "Visualization"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
