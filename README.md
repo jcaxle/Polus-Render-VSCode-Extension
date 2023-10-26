@@ -15,6 +15,8 @@ Render application is loaded in an iframe within VSCode's Webview API. The exten
 3. Clicking "open Render" located on the top right of an opened editor and following the prompts.
 > ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/afd390bd-d244-4d85-89b0-dbccdcb8f4d3)
 
+# Demo
+TODO
 # Installation
 TODO VSCODE URL
 
