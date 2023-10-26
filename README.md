@@ -1,4 +1,7 @@
 # Polus-Render VSCode-Ext
+**Homepage:** https://github.com/jcaxle/Polus-Render-VSCode-Extension/tree/main
+
+
 VSCode extension based on the [polus-render python package](https://github.com/jcaxle/polus-render)
 ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/3361aca5-441b-44c5-844a-98148c00d400)
 
@@ -67,8 +70,8 @@ polus-render is bundled with a build of Polus Render which supports additional f
 is accurate as of 10/4/2023.
 | Version           | Zarr from URL/Path | TIF from URL/Path   | Micro-JSON Support | Zarr/TIF Drag & Drop | Micro-JSON Drag & Drop | 
 |----------------|---------------|---------------|----------------|-----------|-----|
-| Local | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: | ❗ | :heavy_check_mark:
-| Online | :heavy_check_mark:  |  |  |  | 
+| Local | ✔️  | ✔️ | ✔️ | ❗ | ✔️
+| Online | ✔️  |  |  |  | 
 
 
 For local version of Zarr/TIF Drag & Drop, `.zarr` is not supported. Only `.ome.tif` image files are accepted. 
