@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 import * as getPort from "get-port";
 var path = require("path");
 
@@ -44,10 +44,13 @@ export class Polus {
    * @param url Url to launch in local server. Do not surround with quotes
    * @param port Port number to run webserver, 0 for 1st available port.
    */
-  private launchServer(path: Path, port: number) {
-    exec(`npx http-server --cors --port ${port} "${path.path}"`, function (error, stdout, stderr) {
-      console.log(stdout);
+  private async launchServer(path: Path, port: number) {
+    return new Promise<void>((resolve)=>{
+    let process = exec(`npx http-server --cors --port ${port} "${path.path}"`);
+    process.stdout?.on('data', (data)=> {
+      resolve()
     });
+  });
 
   }
 
@@ -74,10 +77,10 @@ export class Polus {
       if (path.extname(this.polusArgs.imageLocation.path) === ".tif") {
         tifExtension = path.basename(this.polusArgs.imageLocation.path);
         let dir = path.dirname(this.polusArgs.imageLocation.path);
-        this.launchServer({ path: dir }, port);
+        await this.launchServer({ path: dir }, port);
         imageLocation = `?imageUrl=http://localhost:${port}/`;
       } else {
-        this.launchServer(this.polusArgs.imageLocation, port);
+        await this.launchServer(this.polusArgs.imageLocation, port);
         imageLocation = `?imageUrl=http://localhost:${port}/`;
         tifExtension = "";
       }
@@ -95,7 +98,7 @@ export class Polus {
     } else if (this.polusArgs.overlayLocation.path.length > 0) {
       let port = await getPort();
       ports.push(port)
-      this.launchServer(this.polusArgs.overlayLocation, port);
+      await this.launchServer(this.polusArgs.overlayLocation, port);
       overlayLocation = `&overlayUrl=http://localhost:${port}/`;
     } else {
       overlayLocation = "";
@@ -106,7 +109,7 @@ export class Polus {
       let port = await getPort();
       ports.push(port)
       console.log(context);
-      this.launchServer({ path: context }, port);
+      await this.launchServer({ path: context }, port);
       renderBase = `http://localhost:${port}/`;
     } else {
       renderBase = "https://render.ci.ncats.io/";
