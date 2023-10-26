@@ -1,5 +1,6 @@
 # Polus-Render VSCode-Ext
 VSCode extension based on the [polus-render python package](https://github.com/jcaxle/polus-render)
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/23fc3914-cb9f-45af-b481-ad27b8ee9a53)
 
 Render application is loaded in an iframe within VSCode's Webview API. The extension allows pointing the iframe at:
 * Render deployed to a server
