@@ -65,7 +65,7 @@ polus-render is bundled with a build of Polus Render which supports additional f
 is accurate as of 10/4/2023.
 | Version           | Zarr from URL/Path | TIF from URL/Path   | Micro-JSON Support | Zarr/TIF Drag & Drop | Micro-JSON Drag & Drop | 
 |----------------|---------------|---------------|----------------|-----------|-----|
-| Local | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: | ⚪ | :heavy_check_mark:
+| Local | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: | ❗ | :heavy_check_mark:
 | Online | :heavy_check_mark:  |  |  |  | 
 
 
