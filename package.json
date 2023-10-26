@@ -2,6 +2,7 @@
   "name": "polus-render",
   "displayName": "polus-render",
   "description": "Access functionality of polus-render Pypi package from VSCode.",
+  "icon": "images/icon.png",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.83.0"
@@ -12,21 +13,66 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Polus-Render",
+      "properties": {
+        "prompt.overlay.disable" : {
+          "description": "Displays a prompt asking the user to choose an overlay with \"open with Render\" context menu option.",
+          "type" : "boolean",
+          "default": "True"
+        },
+        "prompt.polus.type.disable" : {
+          "description": "Displays a prompt asking the user to choose to use either online or local build of Render with \"open with Render\" context menu option.",
+          "type": "boolean",
+          "default": "True"
+        },
+        "prompt.default.local" : {
+          "description": "Use local build of Render by default.",
+          "type": "boolean",
+          "default": "True"
+        }
+      }
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "polus-render.openPolusRender",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceExtname == .zarr",
+          "command": "polus-render.openZarr",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceExtname == .tif",
+          "command": "polus-render.openTif",
+          "group": "navigation"
+        },
+        {
+          "command": "polus-render.openPolusRender",
+          "group": "navigation"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "polus-render.helloWorld",
-        "title": "Hello World"
+        "command": "polus-render.openPolusRender",
+        "title": "Open Polus Render"
       },
       {
-        "command": "polus-render.openCustomRender",
-        "title": "Open Custom Render"
+        "command": "polus-render.openZarr",
+        "title": "Open .zarr with Polus Render"
       },
       {
-        "command": "polus-render.todo",
-        "title": "TODO"
+        "command": "polus-render.openTif",
+        "title": "Open .ome.tif with Polus Render"
       }
     ]
   },
+
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
@@ -39,18 +85,22 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.83.0",
     "@types/mocha": "^10.0.2",
     "@types/node": "18.x",
+    "@types/vscode": "^1.83.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
+    "@vscode/test-electron": "^2.3.4",
     "eslint": "^8.50.0",
     "glob": "^10.3.3",
     "mocha": "^10.2.0",
-    "typescript": "^5.2.2",
     "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4",
-    "@vscode/test-electron": "^2.3.4"
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "get-port": "^5.1.1",
+    "http-server": "^14.1.1"
   }
 }

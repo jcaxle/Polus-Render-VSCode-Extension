@@ -1,71 +1,86 @@
-# polus-render README
+# Polus-Render VSCode-Ext
+VSCode extension based on the [polus-render python package](https://github.com/jcaxle/polus-render)
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/23fc3914-cb9f-45af-b481-ad27b8ee9a53)
 
-This is the README for your extension "polus-render". After writing up a brief description, we recommend including the following sections.
+Render application is loaded in an iframe within VSCode's Webview API. The extension allows pointing the iframe at:
+* Render deployed to a server
+* A [JS server](https://github.com/http-party/http-server) running on localhost and serving a production build of render, which has been bundled with this package
 
-## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+**The are three ways to load the data:**
+1. Right clicking a .zarr or .ome.tif file in the VSCode explorer and selecting "open * with Polus Render".
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/d11947bb-a516-49de-8df8-44ae8c7d8a8a)
+2. Right clicking a file or empty space in the VSCode explorer and selecting "open Render" and following the prompts.
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/1eb4f287-e675-4e04-bac2-b4610b5c0dc9)
+3. Clicking "open Render" located on the top right of an opened editor and following the prompts.
+> ![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/e749d54d-1599-467a-9bd4-b5c3c54dd889)
 
-For example if there is an image subfolder under your extension project workspace:
+# Installation
+TODO VSCODE URL
 
-\!\[feature X\]\(images/feature-x.png\)
+# Dev Installation
+```
+git clone https://github.com/jcaxle/Polus-Render-VSCode-Extension.git
+cd Polus-Render-VSCode-Extension
+npm i
+```
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Testing Extension
+**Split into 3 parts:**
+1. Compile extension
+```
+cd Polus-Render-VSCode-Extension
+tsc -p ./
+```
 
-## Requirements
+2. Move files
+- Within VSCode, move generated `extension.js` and `extension.map.js` into `dist/`. Accept import changes prompt when it appears for `extension.js`.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+3. Running extension
+- Open `extension.ts` in the editor. Type `F5` which will open a debugging window where the extension is loaded.
 
-## Extension Settings
+# Project File Structure
+```
+Polus-Render-VSCode-Extension
+| package.json                    // Includes VSCode Extension configuration options alongside package requirements
+| tsconfig.json                   // TS config, must be kept to ES2020
+| webpack.condfig.js              // Bundling instructions, unused but will be later used to bundle for web extension
+| .vscodeignore                   // Files to ignore when building extension
+| README                          
+└───dist                          // JS files compiled from TS files
+└───src
+    | extension.ts                // Main entry point into extension, contains all VSCode functionality
+    | polus-render.ts             // Contains all functionality for Polus Render. 
+    ├───apps           
+    │   ├───render-ui              // Build files of Polus Render
+    └───test                       // test files
+```
+# Build Instructions
+- In root directory, run `vsce package`.
+- This will generated a `polus-render-<version>.vsix` file. Right click the extension which allows installation of the extension via the `Install Extension VSIX` option.
+- To publish the extension, TODO 
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+# Render: Local build vs online
+polus-render is bundled with a build of Polus Render which supports additional functionality compared to the web version. Table
+is accurate as of 10/4/2023.
+| Version           | Zarr from URL/Path | TIF from URL/Path   | Micro-JSON Support | Zarr/TIF Drag & Drop | Micro-JSON Drag & Drop | 
+|----------------|---------------|---------------|----------------|-----------|-----|
+| Local | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: | ❗ | :heavy_check_mark:
+| Online | :heavy_check_mark:  |  |  |  | 
 
-For example:
 
-This extension contributes the following settings:
+For local version of Zarr/TIF Drag & Drop, `.zarr` is not supported. Only `.ome.tif` image files are accepted. 
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+# Configuration
+![image](https://github.com/jcaxle/Polus-Render-VSCode-Extension/assets/145499292/e93db393-8660-4148-9a91-6703fe049afa)
 
-## Known Issues
+Options are all enabled by default.
+- Prompt>Default:Local - Enable to use local build of render by default, Disable for online build of render by default.
+- Prompt>Overlay:Disable - Enable to not show prompt for an additional overlay when opening image files. Disable to show prompt.
+- Prompt>Polus>Type:Disable - Enable to not show which Render type to use, Disable to show which Render type to use.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+# Implementation Details
+- child-process.exec commands are used to launch http-server to server RenderUI, image files, and overlay files.
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+# Acknowledgements
+- http-server: https://github.com/http-party/http-server
