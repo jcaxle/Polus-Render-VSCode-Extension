@@ -2,6 +2,8 @@ import { exec, spawn } from "child_process";
 import * as getPort from "get-port";
 var path = require("path");
 
+
+
 export interface URL {
   url: string;
 }
@@ -46,9 +48,19 @@ export class Polus {
    */
   private async launchServer(path: Path, port: number) {
     return new Promise<void>((resolve)=>{
-    let process = exec(`npx http-server --cors --port ${port} "${path.path}"`);
+    let process = spawn(`npx http-server --cors --port ${port} "${path.path}"`, {shell:true});
+    process.stderr?.on('data', (data)=> {
+      console.log(data.toString())
+    })
     process.stdout?.on('data', (data)=> {
-      resolve()
+      console.log(data.toString())
+
+      if (data.toString().indexOf('Need to install the following packages:') > -1){
+        process.stdin?.write('y');
+      }
+      else if(data.toString().indexOf('Available on:') > -1){
+      resolve();
+      }
     });
   });
 
