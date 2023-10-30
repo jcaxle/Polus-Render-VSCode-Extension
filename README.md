@@ -20,6 +20,10 @@ Render application is loaded in an iframe within VSCode's Webview API. The exten
 
 # Demo
 TODO
+
+# Requirements
+- Node JS
+
 # Installation
 TODO VSCODE URL
 
