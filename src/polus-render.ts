@@ -73,7 +73,7 @@ export class Polus {
    * Returns: Polus Render's URL
    */
   public async render(context: any): Promise<ServerURL> {
-    let imageLocation, overlayLocation, renderBase, tifExtension;
+    let imageLocation, overlayLocation, renderBase, tifExtension, overlayExtension;
     let ports = [];
     // Get imageLocation
     if ("url" in this.polusArgs.imageLocation) {
@@ -107,13 +107,17 @@ export class Polus {
         this.polusArgs.overlayLocation.url.length > 0
           ? `&overlayUrl=${this.polusArgs.overlayLocation.url}`
           : "";
+          overlayExtension = ""
     } else if (this.polusArgs.overlayLocation.path.length > 0) {
+      overlayExtension =  path.basename(this.polusArgs.overlayLocation.path)
+      let dir = path.dirname(this.polusArgs.overlayLocation.path);
       let port = await getPort();
       ports.push(port)
-      await this.launchServer(this.polusArgs.overlayLocation, port);
+      await this.launchServer({path:dir}, port);
       overlayLocation = `&overlayUrl=http://localhost:${port}/`;
     } else {
       overlayLocation = "";
+      overlayExtension = ""
     }
 
     // Check render type
@@ -129,10 +133,10 @@ export class Polus {
 
     // Build Render URL and return it
     console.log(
-      `${renderBase}${imageLocation}${tifExtension}${overlayLocation}`,
+      `${renderBase}${imageLocation}${tifExtension}${overlayLocation}${overlayExtension}`,
     );
     return {
-      url: `${renderBase}${imageLocation}${tifExtension}${overlayLocation}`,
+      url: `${renderBase}${imageLocation}${tifExtension}${overlayLocation}${overlayExtension}`,
       ports: ports
     };
   }
