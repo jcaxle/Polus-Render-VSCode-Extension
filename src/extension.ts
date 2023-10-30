@@ -156,7 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
       "render",
       "Render",
       vscode.ViewColumn.One,
-      { enableScripts: true, localResourceRoots: [vscode.Uri.file("/")] },
+      { enableScripts: true,  retainContextWhenHidden: true, localResourceRoots: [vscode.Uri.file("/")] },
     );
     panel.webview.html = buildHTML(polusURL.url);
 
