@@ -1,0 +1,3 @@
+[submodule "src/apps/live-preview"]
+	path = src/apps/live-preview
+	url = https://github.com/microsoft/vscode-livepreview.git

@@ -7,6 +7,8 @@ import {exec} from "child_process";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+
+
   /**
    * Checks if string is url by matching http:// or https:// at beginning of string.
    * Normalize string with trim() and toLowercase()
@@ -151,27 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
       context.asAbsolutePath("src/apps/render-ui"),
     );
     console.log(JSON.stringify(polusURL))
-
-    let panel = vscode.window.createWebviewPanel(
-      "render",
-      "Render",
-      vscode.ViewColumn.One,
-      { enableScripts: true,  retainContextWhenHidden: true, localResourceRoots: [vscode.Uri.file("/")] },
-    );
-    panel.webview.html = buildHTML(polusURL.url);
-
-    panel.onDidDispose(
-      () => {
-        // Clear all ports used when tab is closed
-        polusURL.ports.forEach((port) => {
-          exec(`npx kill-port ${port}`, function (error, stdout, stderr) {
-            console.log(stdout);
-          });
-        });
-      },
-      null,
-      context.subscriptions
-    );
+    vscode.commands.executeCommand("simpleBrowser.show", [polusURL.url])
   }
 
   /**
@@ -336,6 +318,8 @@ export function activate(context: vscode.ExtensionContext) {
       withImage(ctx);
     },
   );
+  const allExtensions: readonly any[] = vscode.extensions.all;
+  console.log("All commands: " + JSON.stringify(vscode.extensions.getExtension("")))
   context.subscriptions.push(customRender, openZarr, openTif);
 }
 
