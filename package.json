@@ -51,7 +51,7 @@
       ],
       "explorer/context": [
         {
-          "when": "resourceExtname == .zarr",
+          "when": "resourcePath =~ /zarr/" ,
           "command": "polus-render.openZarr",
           "group": "navigation"
         },

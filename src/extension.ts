@@ -261,7 +261,18 @@ export function activate(context: vscode.ExtensionContext) {
     // path must be specified
     if (path === undefined) {
       return;
-    } else if (isUrl(path)) {
+    } 
+    
+    // Trim path up to 1st .zarr if does not end in tif
+    if (!path.endsWith("tif")){
+      let tokens = path.split(".zarr")
+      let left = tokens[0]
+      let rightTokens = tokens[1].split('\\')
+      path =  left + ".zarr" + rightTokens[0]
+      console.log("broken up: " + path)
+    }
+
+    if (isUrl(path)) {
       path = { url: path };
     } else {
       path = { path: path };
