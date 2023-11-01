@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { URL, Path, PolusArgs, Polus } from "./polus-render";
-import {exec} from "child_process";
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -257,7 +257,8 @@ export function activate(context: vscode.ExtensionContext) {
    * @returns
    */
   async function withImage(ctx: any) {
-    let path = ctx.fsPath;
+    // Normalize path
+    let path = ctx.fsPath.replace(/\\/g, '/');
     // path must be specified
     if (path === undefined) {
       return;
@@ -267,7 +268,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (!path.endsWith("tif")){
       let tokens = path.split(".zarr")
       let left = tokens[0]
-      let rightTokens = tokens[1].split('\\')
+      let rightTokens = tokens[1].split('/')
       path =  left + ".zarr" + rightTokens[0]
       console.log("broken up: " + path)
     }
