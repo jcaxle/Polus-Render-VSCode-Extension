@@ -22,7 +22,7 @@ Render application is loaded in an iframe within VSCode's Webview API. The exten
 TODO
 
 # Requirements
-- Node JS
+- Local VSCode installation (does not work remotely_
 
 # Installation
 TODO VSCODE URL
@@ -98,9 +98,3 @@ Options are all enabled by default.
 - Prompt>Default:Local - Enable to use local build of render by default, Disable for online build of render by default.
 - Prompt>Overlay:Disable - Enable to not show prompt for an additional overlay when opening image files. Disable to show prompt.
 - Prompt>Polus>Type:Disable - Enable to not show which Render type to use, Disable to show which Render type to use.
-
-# Implementation Details
-- child-process.exec commands are used to launch http-server to server RenderUI, image files, and overlay files.
-
-# Acknowledgements
-- http-server: https://github.com/http-party/http-server
