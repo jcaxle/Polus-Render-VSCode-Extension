@@ -2,7 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { URL, Path, PolusArgs, Polus } from "./polus-render";
-import {exec} from "child_process"
+import {exec} from 'child_process'
+
 var portsInUse:number[] = []
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -344,8 +345,9 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {
   portsInUse.forEach((port)=>{
-    exec(`npx kill-port ${port}`, function (error, stdout, stderr) {
-      console.log(stdout);
+    //kill(port)
+    exec(`kill $(lsof -t -i:${port})`, async function(err, stdout, stderr) {
+      console.log(stdout)
     });
   })
 }

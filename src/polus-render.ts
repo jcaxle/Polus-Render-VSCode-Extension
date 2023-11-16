@@ -1,4 +1,3 @@
-import { exec, spawn } from "child_process";
 import * as getPort from "get-port";
 import {Serve} from "./http-server"
 var path = require("path");
