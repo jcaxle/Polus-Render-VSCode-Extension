@@ -5,7 +5,13 @@
   "icon": "images/icon.png",
   "publisher": "jcaxle",
   "version": "0.0.1",
-  "keywords": ["polus", "render", "zarr", "ome.tif", "science"],
+  "keywords": [
+    "polus",
+    "render",
+    "zarr",
+    "ome.tif",
+    "science"
+  ],
   "preview": true,
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/jcaxle/Polus-Render-VSCode-Extension",
@@ -17,7 +23,8 @@
     "vscode": "^1.79.0"
   },
   "categories": [
-    "Data Science", "Visualization"
+    "Data Science",
+    "Visualization"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -25,17 +32,17 @@
     "configuration": {
       "title": "Polus-Render",
       "properties": {
-        "prompt.overlay.disable" : {
+        "prompt.overlay.disable": {
           "description": "Displays a prompt asking the user to choose an overlay with \"open with Render\" context menu option.",
-          "type" : "boolean",
+          "type": "boolean",
           "default": "True"
         },
-        "prompt.polus.type.disable" : {
+        "prompt.polus.type.disable": {
           "description": "Displays a prompt asking the user to choose to use either online or local build of Render with \"open with Render\" context menu option.",
           "type": "boolean",
           "default": "True"
         },
-        "prompt.default.local" : {
+        "prompt.default.local": {
           "description": "Use local build of Render by default.",
           "type": "boolean",
           "default": "True"
@@ -51,7 +58,7 @@
       ],
       "explorer/context": [
         {
-          "when": "resourcePath =~ /.*\\.zarr.*/" ,
+          "when": "resourcePath =~ /.*\\.zarr.*/",
           "command": "polus-render.openZarr",
           "group": "navigation"
         },
@@ -81,7 +88,6 @@
       }
     ]
   },
-
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
@@ -96,6 +102,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.2",
     "@types/node": "18.x",
+    "@types/serve-handler": "^6.1.4",
     "@types/vscode": "^1.79.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
@@ -110,6 +117,7 @@
   },
   "dependencies": {
     "get-port": "^5.1.1",
-    "http-server": "^14.1.1"
+    "serve": "^14.2.1",
+    "tsc": "^2.0.4"
   }
 }

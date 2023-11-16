@@ -1,5 +1,6 @@
 import { exec, spawn } from "child_process";
 import * as getPort from "get-port";
+import {Serve} from "./http-server"
 var path = require("path");
 
 
@@ -47,6 +48,7 @@ export class Polus {
    * @param port Port number to run webserver, 0 for 1st available port.
    */
   private async launchServer(path: Path, port: number) {
+    /**
     return new Promise<void>((resolve)=>{
     let process = spawn(`npx http-server --cors --port ${port} "${path.path}"`, {shell:true});
     process.stderr?.on('data', (data)=> {
@@ -62,8 +64,9 @@ export class Polus {
       resolve();
       }
     });
-  });
-
+  });*/
+    let server = new Serve(port)
+    server.serve(path)
   }
 
   /**
