@@ -54,14 +54,16 @@ export function activate(context: vscode.ExtensionContext) {
       if (imageType.target === "zarr") {
         selectedFile = await vscode.window.showOpenDialog({
           canSelectFolders: true,
+          canSelectFiles: false,
           canSelectMany: false,
           title: "Select Image",
           openLabel: "Select Image",
-          filters: { Image: [imageType.target] },
+          filters: { Folder: ["/.*\\.zarr.*/"] },
         });
       } else {
         selectedFile = await vscode.window.showOpenDialog({
           canSelectFiles: true,
+          canSelectFolders: false,
           canSelectMany: false,
           title: "Select Image",
           openLabel: "Select Image",
