@@ -50,7 +50,13 @@
       }
     },
     "menus": {
-      "editor/title": [
+      "file/newFile": [
+        {
+          "command": "polus-render.openPolusRender",
+          "group": "navigation"
+        }
+      ],
+      "touchBar": [
         {
           "command": "polus-render.openPolusRender",
           "group": "navigation"
@@ -66,17 +72,13 @@
           "when": "resourceExtname =~ /.tiff?/",
           "command": "polus-render.openTif",
           "group": "navigation"
-        },
-        {
-          "command": "polus-render.openPolusRender",
-          "group": "navigation"
         }
       ]
     },
     "commands": [
       {
         "command": "polus-render.openPolusRender",
-        "title": "Open Polus Render"
+        "title": "Polus Render"
       },
       {
         "command": "polus-render.openZarr",
