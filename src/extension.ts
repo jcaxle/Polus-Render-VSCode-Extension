@@ -277,7 +277,7 @@ export function activate(context: vscode.ExtensionContext) {
     } 
     
     // Trim path up to 1st .zarr if does not end in tif
-    if (!path.endsWith("tif")){
+    if (!path.endsWith("tif") && !path.endsWith("tiff")){
       let tokens = path.split(".zarr")
       let left = tokens[0]
       let rightTokens = tokens[1].split('/')

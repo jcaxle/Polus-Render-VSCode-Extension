@@ -63,7 +63,7 @@
           "group": "navigation"
         },
         {
-          "when": "resourceExtname == .tif",
+          "when": "resourceExtname =~ /.tiff?/",
           "command": "polus-render.openTif",
           "group": "navigation"
         },
@@ -84,7 +84,7 @@
       },
       {
         "command": "polus-render.openTif",
-        "title": "Open .ome.tif with Polus Render"
+        "title": "Open .OME.TIFF with Polus Render"
       }
     ]
   },

@@ -88,7 +88,7 @@ export class Polus {
       let port = await getPort();
       ports.push(port)
       console.log(JSON.stringify(this.polusArgs.imageLocation.path));
-      if (path.extname(this.polusArgs.imageLocation.path) === ".tif") {
+      if (path.extname(this.polusArgs.imageLocation.path) === ".tif" || path.extname(this.polusArgs.imageLocation.path) === ".tiff") {
         tifExtension = path.basename(this.polusArgs.imageLocation.path);
         let dir = path.dirname(this.polusArgs.imageLocation.path);
         await this.launchServer({ path: dir }, port);
