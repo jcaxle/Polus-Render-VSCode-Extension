@@ -34,6 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
       prompt:
         "Enter to submit URL or File path, leave blank to skip, ESC to open file picker",
       placeHolder: "Zarr/Tif URL",
+      ignoreFocusOut: true
+
     });
 
     if (imageLocation === undefined) {
@@ -41,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
       let imageType = await vscode.window.showQuickPick(
         [
           { label: "Zarr", description: "*.zarr", target: "zarr" },
-          { label: "Tif", description: "*.ome.tif", target: "tif" },
+          { label: "Tif/Tiff", description: "*.ome.tif or *.ome.tiff", target: "tif" },
         ],
         { placeHolder: "Select the extension type of your dataset" },
       );
@@ -67,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
           canSelectMany: false,
           title: "Select Image",
           openLabel: "Select Image",
-          filters: { Image: [imageType.target] },
+          filters: { Image: ["tif", "tiff"] },
         });
       }
 
@@ -99,6 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
       prompt:
         "Enter to submit URL, leave blank to skip, ESC to open file picker",
       placeHolder: "MicroJSON URL",
+      ignoreFocusOut: true
     });
     // File prompt if Undefined
     if (overlayLocation === undefined) {
