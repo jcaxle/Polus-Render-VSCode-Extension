@@ -342,9 +342,16 @@ export function activate(context: vscode.ExtensionContext) {
       withImage(ctx);
     },
   );
-  const allExtensions: readonly any[] = vscode.extensions.all;
-  console.log("All commands: " + JSON.stringify(vscode.extensions.getExtension("")))
   context.subscriptions.push(customRender, openZarr, openTif);
+
+  // create a new status bar item that we can now manage
+	let RenderItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	RenderItem.command = "polus-render.openPolusRender";
+  RenderItem.text = "$(notebook-render-output)"
+  RenderItem.tooltip = "Open Polus Render"
+  context.subscriptions.push(RenderItem)
+
+  RenderItem.show();
 }
 
 // This method is called when your extension is deactivated
