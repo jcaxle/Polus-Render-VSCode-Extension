@@ -120,7 +120,7 @@ export class Polus {
         overlayLocation = "?"
       }
       else{
-        overlayExtension = "&"
+        overlayLocation = "&"
       }
       overlayLocation += `overlayUrl=http://localhost:${port}/`;
     } else {
