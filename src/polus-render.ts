@@ -116,7 +116,13 @@ export class Polus {
       let port = await getPort();
       ports.push(port)
       await this.launchServer({path:dir}, port);
-      overlayLocation = `&overlayUrl=http://localhost:${port}/`;
+      if (imageLocation.length == 0){
+        overlayLocation = "?"
+      }
+      else{
+        overlayExtension = "&"
+      }
+      overlayLocation += `overlayUrl=http://localhost:${port}/`;
     } else {
       overlayLocation = "";
       overlayExtension = ""

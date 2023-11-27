@@ -3,22 +3,28 @@
   "displayName": "polus-render",
   "description": "Embed Polus Render into VSCode",
   "icon": "images/icon.png",
-  "publisher": "jcaxle",
-  "version": "0.0.1",
+  "publisher": "Polus",
+  "author": {"name": "jcaxle", "email": "jeff.chen@axleinfo.com"},
+  "version": "0.1.0",
   "keywords": [
     "polus",
     "render",
     "zarr",
-    "ome.tif",
+    "ome.tiff",
     "science"
   ],
   "preview": true,
   "license": "SEE LICENSE IN LICENSE",
-  "homepage": "https://github.com/jcaxle/Polus-Render-VSCode-Extension",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
+  "pricing": "Free",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jcaxle/Polus-Render-VSCode-Extension"
+    "url": "https://github.com/jcaxle/Polus-Render-VSCode-Extension.git"
   },
+  "homepage": "https://github.com/jcaxle/Polus-Render-VSCode-Extension.git",
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -50,12 +56,6 @@
       }
     },
     "menus": {
-      "file/newFile": [
-        {
-          "command": "polus-render.openPolusRender",
-          "group": "navigation"
-        }
-      ],
       "touchBar": [
         {
           "command": "polus-render.openPolusRender",
@@ -72,6 +72,11 @@
           "when": "resourceExtname =~ /.tiff?/",
           "command": "polus-render.openTif",
           "group": "navigation"
+        },
+        {
+          "when": "resourcePath =~ /.*\\.json/",
+          "command": "polus-render.openJson",
+          "group": "navigation"
         }
       ]
     },
@@ -81,12 +86,16 @@
         "title": "Polus Render"
       },
       {
+        "command": "polus-render.openJson",
+        "title": "Open .json with Polus Render"
+      },
+      {
         "command": "polus-render.openZarr",
         "title": "Open .zarr with Polus Render"
       },
       {
         "command": "polus-render.openTif",
-        "title": "Open .OME.TIFF with Polus Render"
+        "title": "Open OME.TIFF with Polus Render"
       }
     ]
   },

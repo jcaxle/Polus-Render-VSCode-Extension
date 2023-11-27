@@ -64,11 +64,11 @@ export function activate(context: vscode.ExtensionContext) {
   async function promptImage(): Promise<Path | URL | undefined> {
 
     let prompt = vscode.window.createInputBox()
-    prompt.title = "Enter Image URL"
+    prompt.title = "Enter Image URL or File Path"
     prompt.prompt = "Enter URL or File Path"
-    prompt.placeholder = "Zarr/OME.TIFF URL"
+    prompt.placeholder = "Select Zarr/OME.TIFF Image"
     prompt.ignoreFocusOut = true
-    prompt.buttons = [openZarrBtn, openOmeTiffBtn, vscode.QuickInputButtons.Back]
+    prompt.buttons = [openZarrBtn, openOmeTiffBtn]
 
     prompt.onDidTriggerButton(async (btn) => {
       prompt.dispose()
@@ -127,11 +127,11 @@ export function activate(context: vscode.ExtensionContext) {
   async function promptOverlay(): Promise<Path | URL | undefined> {
 
     let prompt = vscode.window.createInputBox()
-    prompt.title = "Enter Overlay URL",
-    prompt.prompt = "Enter to submit URL, leave blank to skip, ESC to open file picker",
-    prompt.placeholder = "MicroJSON URL",
+    prompt.title = "Enter Overlay URL or File Path",
+    prompt.prompt = "Enter URL or File Path",
+    prompt.placeholder = "Select Json file",
     prompt.ignoreFocusOut = true
-    prompt.buttons = [openJSONBtn, vscode.QuickInputButtons.Back]
+    prompt.buttons = [openJSONBtn]
 
     prompt.onDidTriggerButton(async (btn) => {
       prompt.dispose()
@@ -307,6 +307,9 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  async function withOverlay(ctx: any){
+    return
+  }
   /**
    * User selected .zarr or .tif command action
    * @param ctx obtained from vscode command on .zarr or .tif context menus
@@ -386,7 +389,14 @@ export function activate(context: vscode.ExtensionContext) {
       withImage(ctx);
     },
   );
-  context.subscriptions.push(customRender, openZarr, openTif);
+
+  let openJson = vscode.commands.registerCommand(
+    "polus-render.openJson",
+    async (ctx) => {
+      withOverlay(ctx)
+    }
+  )
+  context.subscriptions.push(customRender, openZarr, openTif, openJson);
 
   // create a new status bar item that we can now manage
 	let RenderItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
