@@ -401,7 +401,7 @@ export function activate(context: vscode.ExtensionContext) {
   // create a new status bar item that we can now manage
 	let RenderItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	RenderItem.command = "polus-render.openPolusRender";
-  RenderItem.text = "$(notebook-render-output)"
+  RenderItem.text = "$(run) Polus Render"
   RenderItem.tooltip = "Open Polus Render"
   context.subscriptions.push(RenderItem)
 
