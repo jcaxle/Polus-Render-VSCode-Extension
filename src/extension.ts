@@ -3,6 +3,8 @@
 import * as vscode from "vscode";
 import { URL, Path, PolusArgs, Polus } from "./polus-render";
 import {exec} from 'child_process'
+import EventEmitter = require('node:events');
+
 
 var portsInUse:number[] = []
 // This method is called when your extension is activated
@@ -10,6 +12,15 @@ var portsInUse:number[] = []
 export function activate(context: vscode.ExtensionContext) {
 
 
+  const openZarrBtn: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon("file-symlink-directory"),
+    tooltip: "Open Zarr",
+  };
+
+  const openOmeTiffBtn: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon("file-symlink-file"),
+    tooltip: "Open OME.TIFF",
+  };
   /**
    * Checks if string is url by matching http:// or https:// at beginning of string.
    * Normalize string with trim() and toLowercase()
@@ -21,6 +32,23 @@ export function activate(context: vscode.ExtensionContext) {
     return s.startsWith("http://") || s.startsWith("https://");
   }
 
+  function getPromiseFromEvent(item:EventEmitter, event:string) {
+    return new Promise<void>((resolve) => {
+      const listener = () => {
+        item.removeListener(event, listener);
+        resolve();
+      }
+      item.addListener(event, listener);
+    })
+  }
+
+  let pathEmitterValue:Path | URL | undefined = undefined
+  const pathEmitter = new EventEmitter();
+
+  pathEmitter.on('location', function firstListener(location: Path | URL | undefined) {
+    pathEmitterValue = location
+  });
+
   /**
    * Prompts the user to enter image URL
    * @returns URL or Path to user input.
@@ -29,32 +57,18 @@ export function activate(context: vscode.ExtensionContext) {
    * - if cancelled, returned undefined
    */
   async function promptImage(): Promise<Path | URL | undefined> {
-    let imageLocation = await vscode.window.showInputBox({
-      title: "Enter Image URL",
-      prompt:
-        "Enter to submit URL or File path, leave blank to skip, ESC to open file picker",
-      placeHolder: "Zarr/Tif URL",
-      ignoreFocusOut: true
 
-    });
+    let prompt = vscode.window.createInputBox()
+    prompt.title = "Enter Image URL"
+    prompt.prompt = "Enter URL or File Path"
+    prompt.placeholder = "Zarr/OME.TIFF URL"
+    prompt.ignoreFocusOut = true
+    prompt.buttons = [openZarrBtn, openOmeTiffBtn, vscode.QuickInputButtons.Back]
 
-    if (imageLocation === undefined) {
-      // User selects dataset type, due to limitations that file & folder can't be shown together
-      let imageType = await vscode.window.showQuickPick(
-        [
-          { label: "Zarr", description: "*.zarr", target: "zarr" },
-          { label: "Tif/Tiff", description: "*.ome.tif or *.ome.tiff", target: "tif" },
-        ],
-        { placeHolder: "Select the extension type of your dataset" },
-      );
-
-      if (imageType === undefined) {
-        return;
-      }
-
-      let selectedFile: vscode.Uri[] | undefined;
-      if (imageType.target === "zarr") {
-        selectedFile = await vscode.window.showOpenDialog({
+    prompt.onDidTriggerButton(async (btn) => {
+      prompt.dispose()
+      if (btn === openZarrBtn){
+        let value =  await vscode.window.showOpenDialog({
           canSelectFolders: true,
           canSelectFiles: false,
           canSelectMany: false,
@@ -62,8 +76,15 @@ export function activate(context: vscode.ExtensionContext) {
           openLabel: "Select Image",
           filters: { Folder: ["/.*\\.zarr.*/"] },
         });
-      } else {
-        selectedFile = await vscode.window.showOpenDialog({
+        
+        if (value)
+          pathEmitter.emit("location", {path : value[0].fsPath})
+        else
+          pathEmitter.emit("location", undefined)
+
+      }
+      else if(btn === openOmeTiffBtn){
+        let value = await vscode.window.showOpenDialog({
           canSelectFiles: true,
           canSelectFolders: false,
           canSelectMany: false,
@@ -71,21 +92,24 @@ export function activate(context: vscode.ExtensionContext) {
           openLabel: "Select Image",
           filters: { Image: ["tif", "tiff"] },
         });
+        
+        if (value)
+        pathEmitter.emit("location", {path : value[0].fsPath})
       }
+    })
 
-      if (selectedFile) {
-        return { path: selectedFile[0].fsPath };
-      }
-      // Since user cancelled both prompts, skip opening render
-      else {
-        return;
-      }
-    }
+    prompt.onDidAccept(() => {
+        prompt.dispose()
 
-    if (isUrl(imageLocation)) {
-      return { url: imageLocation };
-    }
-    return { path: imageLocation };
+        if (isUrl(prompt.value)) {
+          pathEmitter.emit("location",  { url: prompt.value })
+        }
+        pathEmitter.emit("location", { path: prompt.value })
+       })
+    
+    prompt.show()
+    await getPromiseFromEvent(pathEmitter, "location")
+    return pathEmitterValue
   }
 
   /**
@@ -248,6 +272,7 @@ export function activate(context: vscode.ExtensionContext) {
   let customRender = vscode.commands.registerCommand(
     "polus-render.openPolusRender",
     async (ctx) => {
+
       let imageLocation = await promptImage();
       if (imageLocation === undefined) {
         return;
