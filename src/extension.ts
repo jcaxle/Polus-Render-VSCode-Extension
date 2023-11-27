@@ -14,12 +14,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   const openZarrBtn: vscode.QuickInputButton = {
     iconPath: new vscode.ThemeIcon("file-symlink-directory"),
-    tooltip: "Open Zarr",
+    tooltip: "Open .zarr",
   };
 
   const openOmeTiffBtn: vscode.QuickInputButton = {
     iconPath: new vscode.ThemeIcon("file-symlink-file"),
     tooltip: "Open OME.TIFF",
+  };
+
+  const openJSONBtn: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon("file-symlink-file"),
+    tooltip: "Open .json",
   };
   /**
    * Checks if string is url by matching http:// or https:// at beginning of string.
@@ -120,34 +125,45 @@ export function activate(context: vscode.ExtensionContext) {
    * - if cancelled, returned undefined
    */
   async function promptOverlay(): Promise<Path | URL | undefined> {
-    let overlayLocation = await vscode.window.showInputBox({
-      title: "Enter Overlay URL",
-      prompt:
-        "Enter to submit URL, leave blank to skip, ESC to open file picker",
-      placeHolder: "MicroJSON URL",
-      ignoreFocusOut: true
-    });
-    // File prompt if Undefined
-    if (overlayLocation === undefined) {
-      let selectedFile = await vscode.window.showOpenDialog({
-        canSelectFiles: true,
-        canSelectMany: false,
-        title: "Select Overlay",
-        openLabel: "Select Overlay",
-        filters: { Overlay: ["json"] },
-      });
-      if (selectedFile) {
-        return { path: selectedFile[0].fsPath };
+
+    let prompt = vscode.window.createInputBox()
+    prompt.title = "Enter Overlay URL",
+    prompt.prompt = "Enter to submit URL, leave blank to skip, ESC to open file picker",
+    prompt.placeholder = "MicroJSON URL",
+    prompt.ignoreFocusOut = true
+    prompt.buttons = [openJSONBtn, vscode.QuickInputButtons.Back]
+
+    prompt.onDidTriggerButton(async (btn) => {
+      prompt.dispose()
+      if (btn === openJSONBtn){
+        let value = await vscode.window.showOpenDialog({
+          canSelectFiles: true,
+          canSelectMany: false,
+          title: "Select Overlay",
+          openLabel: "Select Overlay",
+          filters: { Overlay: ["json"] },
+        });
+        
+        if (value)
+          pathEmitter.emit("location", {path : value[0].fsPath})
+        else
+          pathEmitter.emit("location", undefined)
+
       }
-      // Since user cancelled both prompts, skip opening render
-      else {
-        return;
-      }
-    }
-    if (isUrl(overlayLocation)) {
-      return { url: overlayLocation };
-    }
-    return { path: overlayLocation };
+    })
+
+    prompt.onDidAccept(() => {
+        prompt.dispose()
+
+        if (isUrl(prompt.value)) {
+          pathEmitter.emit("location",  { url: prompt.value })
+        }
+        pathEmitter.emit("location", { path: prompt.value })
+       })
+    
+    prompt.show()
+    await getPromiseFromEvent(pathEmitter, "location")
+    return pathEmitterValue
   }
 
   /**
@@ -212,7 +228,7 @@ export function activate(context: vscode.ExtensionContext) {
           target: "local",
         },
       ],
-      { placeHolder: "Select which build you would like to use" },
+      { placeHolder: "Select which build you would like to use" , ignoreFocusOut: true, title: "Render Type"},
     );
   }
 
@@ -284,6 +300,9 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       let renderType = await promptRenderType();
+      if (renderType === undefined){
+        return;
+      }
       await buildRunRender(imageLocation, overlayLocation, renderType, context);
     },
   );
