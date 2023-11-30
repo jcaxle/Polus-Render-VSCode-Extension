@@ -1,0 +1,7 @@
+node_modules
+*.js
+*.js.map
+*.js.LICENSE.txt
+src/apps
+.DS_STORE
+*.vsix

@@ -1,5 +1,5 @@
-import { exec, spawn } from "child_process";
 import * as getPort from "get-port";
+import {Serve} from "./http-server"
 var path = require("path");
 
 export interface URL {
@@ -26,42 +26,35 @@ export interface PolusArgs {
  * local file servers and does not build and embed IFrames.
  */
 export class Polus {
-  /**
-   * Constructor which accepts arguments used for Polus Render
-   * @param imageLocation :
-   * @param overlayLocation
-   * @param useOnline
-   */
 
   polusArgs: PolusArgs;
 
+  /**
+   * Inits Polus
+   * @param polusArgs Info required for Polus Render
+   */
   public constructor(polusArgs: PolusArgs) {
     this.polusArgs = polusArgs;
   }
 
   /**
    * Launches localhost webserver
-   * @param url Url to launch in local server. Do not surround with quotes
+   * @param path Path to serve
    * @param port Port number to run webserver, 0 for 1st available port.
    */
   private async launchServer(path: Path, port: number) {
-    return new Promise<void>((resolve)=>{
-    let process = exec(`npx http-server --cors --port ${port} "${path.path}"`);
-    process.stdout?.on('data', (data)=> {
-      resolve()
-    });
-  });
-
+    let server = new Serve(port)
+    server.serve(path)
   }
 
   /**
    * Builds and launches servers needed for the Polus Render
-   * parameters provided in the constructor.
    *
-   * Returns: Polus Render's URL
+   * @param render Local build of render location
+   * @returns Polus Render's URL
    */
-  public async render(context: any): Promise<ServerURL> {
-    let imageLocation, overlayLocation, renderBase, tifExtension;
+  public async render(render: string): Promise<ServerURL> {
+    let imageLocation, overlayLocation, renderBase, tifExtension, overlayExtension;
     let ports = [];
     // Get imageLocation
     if ("url" in this.polusArgs.imageLocation) {
@@ -74,7 +67,7 @@ export class Polus {
       let port = await getPort();
       ports.push(port)
       console.log(JSON.stringify(this.polusArgs.imageLocation.path));
-      if (path.extname(this.polusArgs.imageLocation.path) === ".tif") {
+      if (path.extname(this.polusArgs.imageLocation.path) === ".tif" || path.extname(this.polusArgs.imageLocation.path) === ".tiff") {
         tifExtension = path.basename(this.polusArgs.imageLocation.path);
         let dir = path.dirname(this.polusArgs.imageLocation.path);
         await this.launchServer({ path: dir }, port);
@@ -95,21 +88,30 @@ export class Polus {
         this.polusArgs.overlayLocation.url.length > 0
           ? `&overlayUrl=${this.polusArgs.overlayLocation.url}`
           : "";
+          overlayExtension = ""
     } else if (this.polusArgs.overlayLocation.path.length > 0) {
+      overlayExtension =  path.basename(this.polusArgs.overlayLocation.path)
+      let dir = path.dirname(this.polusArgs.overlayLocation.path);
       let port = await getPort();
       ports.push(port)
-      await this.launchServer(this.polusArgs.overlayLocation, port);
-      overlayLocation = `&overlayUrl=http://localhost:${port}/`;
+      await this.launchServer({path:dir}, port);
+      if (imageLocation.length == 0){
+        overlayLocation = "?"
+      }
+      else{
+        overlayLocation = "&"
+      }
+      overlayLocation += `overlayUrl=http://localhost:${port}/`;
     } else {
       overlayLocation = "";
+      overlayExtension = ""
     }
 
     // Check render type
     if (this.polusArgs.useLocalRender) {
       let port = await getPort();
       ports.push(port)
-      console.log(context);
-      await this.launchServer({ path: context }, port);
+      await this.launchServer({ path: render }, port);
       renderBase = `http://localhost:${port}/`;
     } else {
       renderBase = "https://render.ci.ncats.io/";
@@ -117,10 +119,10 @@ export class Polus {
 
     // Build Render URL and return it
     console.log(
-      `${renderBase}${imageLocation}${tifExtension}${overlayLocation}`,
+      `${renderBase}${imageLocation}${tifExtension}${overlayLocation}${overlayExtension}`,
     );
     return {
-      url: `${renderBase}${imageLocation}${tifExtension}${overlayLocation}`,
+      url: `${renderBase}${imageLocation}${tifExtension}${overlayLocation}${overlayExtension}`,
       ports: ports
     };
   }

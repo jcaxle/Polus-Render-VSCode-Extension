@@ -1,58 +1,80 @@
 {
   "name": "polus-render",
-  "displayName": "polus-render",
-  "description": "Access functionality of polus-render Pypi package from VSCode.",
+  "displayName": "Polus Render",
+  "description": "Embed Polus Render into VSCode",
   "icon": "images/icon.png",
-  "version": "0.0.1",
+  "publisher": "PolusAI",
+  "author": {"name": "jcaxle", "email": "jeff.chen@axleinfo.com"},
+  "version": "0.1.0",
+  "keywords": [
+    "polus",
+    "render",
+    "zarr",
+    "ome.tiff",
+    "science"
+  ],
+  "preview": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
+  "pricing": "Free",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcaxle/Polus-Render-VSCode-Extension.git"
+  },
+  "homepage": "https://github.com/jcaxle/Polus-Render-VSCode-Extension.git",
   "engines": {
-    "vscode": "^1.83.0"
+    "vscode": "^1.79.0"
   },
   "categories": [
-    "Other"
+    "Data Science",
+    "Visualization"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "title": "Polus-Render",
       "properties": {
-        "prompt.overlay.disable" : {
+        "prompt.overlay.disable": {
           "description": "Displays a prompt asking the user to choose an overlay with \"open with Render\" context menu option.",
-          "type" : "boolean",
+          "type": "boolean",
           "default": "True"
         },
-        "prompt.polus.type.disable" : {
+        "prompt.image.disable": {
+          "description": "Displays a prompt asking the user to choose an image with \"open with Render\" context menu option.",
+          "type": "boolean",
+          "default": "True"
+        },
+        "prompt.polus.type.disable": {
           "description": "Displays a prompt asking the user to choose to use either online or local build of Render with \"open with Render\" context menu option.",
           "type": "boolean",
           "default": "True"
         },
-        "prompt.default.local" : {
-          "description": "Use local build of Render by default.",
+        "prompt.default.static": {
+          "description": "Use the static build of Render by default.",
           "type": "boolean",
           "default": "True"
         }
       }
     },
     "menus": {
-      "editor/title": [
-        {
-          "command": "polus-render.openPolusRender",
-          "group": "navigation"
-        }
-      ],
       "explorer/context": [
         {
-          "when": "resourceExtname == .zarr",
+          "when": "resourcePath =~ /.*\\.zarr.*/",
           "command": "polus-render.openZarr",
           "group": "navigation"
         },
         {
-          "when": "resourceExtname == .tif",
+          "when": "resourceExtname =~ /.tiff?/",
           "command": "polus-render.openTif",
           "group": "navigation"
         },
         {
-          "command": "polus-render.openPolusRender",
+          "when": "resourcePath =~ /.*\\.json/",
+          "command": "polus-render.openJson",
           "group": "navigation"
         }
       ]
@@ -60,7 +82,11 @@
     "commands": [
       {
         "command": "polus-render.openPolusRender",
-        "title": "Open Polus Render"
+        "title": "Polus Render"
+      },
+      {
+        "command": "polus-render.openJson",
+        "title": "Open .json with Polus Render"
       },
       {
         "command": "polus-render.openZarr",
@@ -68,11 +94,10 @@
       },
       {
         "command": "polus-render.openTif",
-        "title": "Open .ome.tif with Polus Render"
+        "title": "Open OME.TIFF with Polus Render"
       }
     ]
   },
-
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
@@ -85,9 +110,11 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/kill-port": "^2.0.3",
     "@types/mocha": "^10.0.2",
-    "@types/node": "18.x",
-    "@types/vscode": "^1.83.0",
+    "@types/node": "^18.18.9",
+    "@types/serve-handler": "^6.1.4",
+    "@types/vscode": "^1.79.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "@vscode/test-electron": "^2.3.4",
@@ -101,6 +128,7 @@
   },
   "dependencies": {
     "get-port": "^5.1.1",
-    "http-server": "^14.1.1"
+    "serve": "^14.2.1",
+    "tsc": "^2.0.4"
   }
 }
