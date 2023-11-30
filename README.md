@@ -9,9 +9,9 @@ Polus Render allows visualizing tiled raster datasets in Zarr and TIFF formats, 
 # Loading data
 1. Right clicking a `.zarr` or `.OME.TIFF` file in the VSCode explorer and selecting `open <ext> with Polus Render`.
 > <img src="README assets/load-1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
-1. Right clicking a `.json` file in the VSCode explorer and selecting `open .json with Polus Render`.
+2. Right clicking a `.json` file in the VSCode explorer and selecting `open .json with Polus Render`.
 > <img src="README assets/load-3.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
-2. Clicking `Polus Render` button on the status bar
+3. Clicking `Polus Render` button on the status bar
 > <img src="README assets/load-2.png"   style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
 
 # Requirements
