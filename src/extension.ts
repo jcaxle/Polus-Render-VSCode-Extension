@@ -261,7 +261,52 @@ export function activate(context: vscode.ExtensionContext) {
    * @param ctx obtained from vscode command on .zarr or .tif context menus
    */
   async function withOverlay(ctx: any){
-    // TODO
+    // Normalize path
+    let path = ctx.fsPath.replace(/\\/g, '/');
+
+    // path must be specified
+    if (path === undefined) {
+      return;
+    } 
+
+    path = {"path": path}
+
+    // Get image
+    let imageLocation;
+    if (!vscode.workspace.getConfiguration("prompt.image").get("disable")) {
+      imageLocation = await promptOverlay();
+      if (imageLocation === undefined) {
+        return;
+      }
+    } else {
+      imageLocation = { "path" : "" };
+    }
+
+    // Get render type
+    let renderType;
+    if (!vscode.workspace.getConfiguration("prompt.polus.type").get("disable")) {
+      renderType = await promptRenderType();
+    } else {
+      if (
+        vscode.workspace.getConfiguration("prompt.default").get("static")
+      ) {
+        renderType = {
+          label: "Static Build",
+          description: "Bundled Polus Render",
+          target: "static",
+        };
+      } else {
+        renderType = {
+          label: "Online Build",
+          description: "https://render.ci.ncats.io/",
+          target: "online",
+        };
+      }
+    }
+
+    // Run render
+    await buildRunRender(imageLocation, path, renderType, context);
+
     return
   }
 
@@ -284,15 +329,11 @@ export function activate(context: vscode.ExtensionContext) {
       let left = tokens[0]
       let rightTokens = tokens[1].split('/')
       path =  left + ".zarr" + rightTokens[0]
-      console.log("broken up: " + path)
     }
 
     // Convert to interface
-    if (isUrl(path)) {
-      path = { url: path };
-    } else {
-      path = { path: path };
-    }
+    path = { "path": path };
+    
 
     // Get overlay
     let overlayLocation;
@@ -302,7 +343,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
     } else {
-      overlayLocation = { path: "" };
+      overlayLocation = { "path": "" };
     }
 
     // Get render type

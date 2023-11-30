@@ -43,13 +43,18 @@
           "type": "boolean",
           "default": "True"
         },
+        "prompt.image.disable": {
+          "description": "Displays a prompt asking the user to choose an image with \"open with Render\" context menu option.",
+          "type": "boolean",
+          "default": "True"
+        },
         "prompt.polus.type.disable": {
           "description": "Displays a prompt asking the user to choose to use either online or local build of Render with \"open with Render\" context menu option.",
           "type": "boolean",
           "default": "True"
         },
-        "prompt.default.local": {
-          "description": "Use local build of Render by default.",
+        "prompt.default.static": {
+          "description": "Use the static build of Render by default.",
           "type": "boolean",
           "default": "True"
         }
