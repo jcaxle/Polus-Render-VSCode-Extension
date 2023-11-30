@@ -2,21 +2,30 @@ import handler = require("serve-handler")
 import http = require('http');
 import {Path} from './polus-render'
 
+/**
+ * HTTP-server implemented with serve-handler. 
+ */
 export class Serve{
-    port:number
+  port:number
+
+    /**
+     * Inits server
+     * @param port Port to use
+     */
     public constructor(port:number) {
         this.port = port;
     }
 
+    /**
+     * Serve file at specified path
+     * @param path: Path to serve on
+     */
     serve(path:Path){
         console.log("Serving: " + path)
         const server = http.createServer((request, response) => {
           response.setHeader(
-            'Access-Control-Allow-Origin', '*', /* @dev First, read about security */
-            /** add other headers as per requirement */
+            'Access-Control-Allow-Origin', '*', 
           );
-            // You pass two more arguments for config and middleware
-            // More details here: https://github.com/vercel/serve-handler#options
             return handler(request, response, {"public":path.path});
           });
           
