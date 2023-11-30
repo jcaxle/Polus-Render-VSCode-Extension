@@ -9,6 +9,8 @@ Polus Render allows visualizing tiled raster datasets in Zarr and TIFF formats, 
 # Loading data
 1. Right clicking a `.zarr` or `.OME.TIFF` file in the VSCode explorer and selecting `open <ext> with Polus Render`.
 > <img src="README assets/load-1.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
+1. Right clicking a `.json` file in the VSCode explorer and selecting `open .json with Polus Render`.
+> <img src="README assets/load-3.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
 2. Clicking `Polus Render` button on the status bar
 > <img src="README assets/load-2.png"   style="display: block; margin-left: auto; margin-right: auto; width: 50%;"/>
 
@@ -98,6 +100,7 @@ Polus Render VSCode Extension is bundled with a static build of Polus Render.
 # Configuration
 Options are all enabled by default. Affects only the right click open functionality in the explorer.
 - `Prompt>Default:Local` - Enable to use local build of render by default, Disable for online build of render by default.
+- `Prompt>Image:Disable` - Enable to not show prompt for an additional image when opening overlay files. Disable to show prompt.
 - `Prompt>Overlay:Disable` - Enable to not show prompt for an additional overlay when opening image files. Disable to show prompt.
 - `Prompt>Polus>Type:Disable` - Enable to not show which Render type to use, Disable to show which Render type to use.
 
