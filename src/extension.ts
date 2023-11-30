@@ -274,12 +274,12 @@ export function activate(context: vscode.ExtensionContext) {
     // Get image
     let imageLocation;
     if (!vscode.workspace.getConfiguration("prompt.image").get("disable")) {
-      imageLocation = await promptOverlay();
+      imageLocation = await promptImage();
       if (imageLocation === undefined) {
         return;
       }
     } else {
-      imageLocation = { "path" : "" };
+      imageLocation = {"path" : "" };
     }
 
     // Get render type
