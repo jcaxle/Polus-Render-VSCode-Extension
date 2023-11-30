@@ -1,9 +1,9 @@
 {
-  "name": "polus-render",
+  "name": "polus-render-vscode-extension",
   "displayName": "polus-render",
   "description": "Embed Polus Render into VSCode",
   "icon": "images/icon.png",
-  "publisher": "Polus",
+  "publisher": "PolusAI",
   "author": {"name": "jcaxle", "email": "jeff.chen@axleinfo.com"},
   "version": "0.1.0",
   "keywords": [
@@ -56,12 +56,6 @@
       }
     },
     "menus": {
-      "touchBar": [
-        {
-          "command": "polus-render.openPolusRender",
-          "group": "navigation"
-        }
-      ],
       "explorer/context": [
         {
           "when": "resourcePath =~ /.*\\.zarr.*/",
