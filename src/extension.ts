@@ -83,19 +83,19 @@ export function activate(context: vscode.ExtensionContext) {
         | undefined,
       context: vscode.ExtensionContext,
     ) {
-      let isLocal;
+      let isStatic;
   
       // Fix undefined if it occurs and make args ready for spawn
       if (renderType !== undefined && renderType.target === "online") {
-        isLocal = false;
+        isStatic = false;
       } else {
-        isLocal = true;
+        isStatic = true;
       }
   
       let args: PolusArgs = {
         imageLocation,
         overlayLocation,
-        useLocalRender: isLocal,
+        useLocalRender: isStatic,
       };
       let polus = new Polus(args);
       let polusURL = await polus.render(
@@ -242,9 +242,9 @@ export function activate(context: vscode.ExtensionContext) {
           target: "online",
         },
         {
-          label: "Local Build",
+          label: "Static Build",
           description: "Bundled Polus Render",
-          target: "local",
+          target: "static",
         },
       ],
       { placeHolder: "Select which build you would like to use" , ignoreFocusOut: true, title: "Render Type"},
@@ -311,12 +311,12 @@ export function activate(context: vscode.ExtensionContext) {
       renderType = await promptRenderType();
     } else {
       if (
-        vscode.workspace.getConfiguration("prompt.default").get("local")
+        vscode.workspace.getConfiguration("prompt.default").get("static")
       ) {
         renderType = {
-          label: "Local Build",
+          label: "Static Build",
           description: "Bundled Polus Render",
-          target: "local",
+          target: "static",
         };
       } else {
         renderType = {

@@ -1,6 +1,6 @@
 {
-  "name": "polus-render-vscode-extension",
-  "displayName": "polus-render",
+  "name": "polus-render",
+  "displayName": "Polus Render",
   "description": "Embed Polus Render into VSCode",
   "icon": "images/icon.png",
   "publisher": "PolusAI",
