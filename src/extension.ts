@@ -1,17 +1,16 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { URL, Path, PolusArgs, Polus } from "./polus-render";
 import {exec} from 'child_process'
 import EventEmitter = require('node:events');
 
 
+// Keeps a list of ports in used, ports are closed when deactivate() is called
 var portsInUse:number[] = []
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+
+
 export function activate(context: vscode.ExtensionContext) {
 
-
+  // Buttons --------------------------------------------------
   const openZarrBtn: vscode.QuickInputButton = {
     iconPath: new vscode.ThemeIcon("file-symlink-directory"),
     tooltip: "Open .zarr",
@@ -26,27 +25,14 @@ export function activate(context: vscode.ExtensionContext) {
     iconPath: new vscode.ThemeIcon("file-symlink-file"),
     tooltip: "Open .json",
   };
-  /**
-   * Checks if string is url by matching http:// or https:// at beginning of string.
-   * Normalize string with trim() and toLowercase()
-   * @param target possible url string
-   * @returns True if string is URL, false if not URL
-   */
-  function isUrl(target: string) {
-    let s = target.trim().toLowerCase();
-    return s.startsWith("http://") || s.startsWith("https://");
-  }
 
-  function getPromiseFromEvent(item:EventEmitter, event:string) {
-    return new Promise<void>((resolve) => {
-      const listener = () => {
-        item.removeListener(event, listener);
-        resolve();
-      }
-      item.addListener(event, listener);
-    })
-  }
-
+  // Local Reusable variables ---------------------------------
+  
+  /* Event emitter used to circumnavigate createInputBox design
+     In specifics, createInputBox wants to be designed in a way
+     where it runs async from your main thread, similar to a 
+     standalone extension command.
+  */
   let pathEmitterValue:Path | URL | undefined = undefined
   const pathEmitter = new EventEmitter();
 
@@ -54,11 +40,83 @@ export function activate(context: vscode.ExtensionContext) {
     pathEmitterValue = location
   });
 
+  // Helpers -------------------------------------------------
+  /**
+   * Checks if string is url by matching http:// or https:// at beginning of string.
+   * Normalizes string with trim() and toLowercase()
+   * @param target: possible url string
+   * @returns True if string is URL, false if not URL
+   */
+  function isUrl(target: string) {
+    let s = target.trim().toLowerCase();
+    return s.startsWith("http://") || s.startsWith("https://");
+  }
+
+  /**
+   * Return a promise from an event
+   * 
+   * @param emitter (EventEmitter): Event emitter
+   * @param event (string): Specific event from emitter 
+   * @returns Promise linked to event
+   */
+  function getPromiseFromEvent(emitter:EventEmitter, event:string) {
+    return new Promise<void>((resolve) => {
+      const listener = () => {
+        emitter.removeListener(event, listener);
+        resolve();
+      }
+      emitter.addListener(event, listener);
+    })
+  }
+
+  /**
+   * Run Render and open a tab in VSCode.
+   * @param imageLocation: image location. Empty string if not specified
+   * @param overlayLocation: overlay location. Empty string if not specified
+   * @param renderType: Acquired from promptRenderType
+   */
+    async function buildRunRender(
+      imageLocation: Path | URL,
+      overlayLocation: Path | URL,
+      renderType:
+        | { label: string; description: string; target: string }
+        | undefined,
+      context: vscode.ExtensionContext,
+    ) {
+      let isLocal;
+  
+      // Fix undefined if it occurs and make args ready for spawn
+      if (renderType !== undefined && renderType.target === "online") {
+        isLocal = false;
+      } else {
+        isLocal = true;
+      }
+  
+      let args: PolusArgs = {
+        imageLocation,
+        overlayLocation,
+        useLocalRender: isLocal,
+      };
+      let polus = new Polus(args);
+      let polusURL = await polus.render(
+        context.asAbsolutePath("src/apps/render-ui"),
+      );
+      console.log(JSON.stringify(polusURL))
+      vscode.commands.executeCommand("simpleBrowser.show", [polusURL.url])
+  
+      // Save ports
+      polusURL.ports.forEach((port) => {
+        portsInUse.push(port)
+      })
+      
+    }
+
+  // Modular vscode extension components ---------------------------
   /**
    * Prompts the user to enter image URL
    * @returns URL or Path to user input.
-   * - If none specified, returns ""
-   * - If specified, returns nonempty string
+   * - If none specified, returns Path whose path is ""
+   * - If specified, returns Path | URL
    * - if cancelled, returned undefined
    */
   async function promptImage(): Promise<Path | URL | undefined> {
@@ -66,7 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
     let prompt = vscode.window.createInputBox()
     prompt.title = "Enter Image URL or File Path"
     prompt.prompt = "Enter URL or File Path"
-    prompt.placeholder = "Select Zarr/OME.TIFF Image"
+    prompt.placeholder = "Zarr/OME.TIFF Image"
     prompt.ignoreFocusOut = true
     prompt.buttons = [openZarrBtn, openOmeTiffBtn]
 
@@ -120,8 +178,8 @@ export function activate(context: vscode.ExtensionContext) {
   /**
    * Prompts the user to enter overlay URL
    * @returns URL or Path to user input.
-   * - If none specified, returns ""
-   * - If specified, returns nonempty string
+   * - If none specified, returns Path whose path is ""
+   * - If specified, returns Path | URL
    * - if cancelled, returned undefined
    */
   async function promptOverlay(): Promise<Path | URL | undefined> {
@@ -129,7 +187,7 @@ export function activate(context: vscode.ExtensionContext) {
     let prompt = vscode.window.createInputBox()
     prompt.title = "Enter Overlay URL or File Path",
     prompt.prompt = "Enter URL or File Path",
-    prompt.placeholder = "Select Json file",
+    prompt.placeholder = "Json file",
     prompt.ignoreFocusOut = true
     prompt.buttons = [openJSONBtn]
 
@@ -166,51 +224,12 @@ export function activate(context: vscode.ExtensionContext) {
     return pathEmitterValue
   }
 
-  /**
-   * Run Render and open a tab in VSCode.
-   * @param imageLocation: image location. Empty string if not specified
-   * @param overlayLocation: overlay location. Empty string if not specified
-   * @param renderType: Acquired from promptRenderType
-   */
-  async function buildRunRender(
-    imageLocation: Path | URL,
-    overlayLocation: Path | URL,
-    renderType:
-      | { label: string; description: string; target: string }
-      | undefined,
-    context: vscode.ExtensionContext,
-  ) {
-    let isLocal;
 
-    // Fix undefined if it occurs and make args ready for spawn
-    if (renderType !== undefined && renderType.target === "online") {
-      isLocal = false;
-    } else {
-      isLocal = true;
-    }
-
-    let args: PolusArgs = {
-      imageLocation,
-      overlayLocation,
-      useLocalRender: isLocal,
-    };
-    let polus = new Polus(args);
-    let polusURL = await polus.render(
-      context.asAbsolutePath("src/apps/render-ui"),
-    );
-    console.log(JSON.stringify(polusURL))
-    vscode.commands.executeCommand("simpleBrowser.show", [polusURL.url])
-
-    // Save ports
-    polusURL.ports.forEach((port) => {
-      portsInUse.push(port)
-    })
-    
-  }
 
   /**
    * Prompt the user for which type of render they would like to use
-   * @returns json with label, description, and target parameters.
+   * @returns json with label, description, and target parameters or undefined
+   *          if user cancels prompt.
    */
   async function promptRenderType(): Promise<
     { label: string; description: string; target: string } | undefined
@@ -232,92 +251,28 @@ export function activate(context: vscode.ExtensionContext) {
     );
   }
 
+
+
+
+  // Explorer entry points --------------------------------------------------
+
   /**
-   * Returns a full HTML of an IFrame of Polus Render
-   * @param renderURL: URL of Polus Render to insert into HTML
+   * User selected .json command action
+   * @param ctx obtained from vscode command on .zarr or .tif context menus
    */
-  function buildHTML(renderURL: string) {
-    return `
-            <!DOCTYPE html> 
-            <html> 
-              
-            <head> 
-                <title>full screen iframe</title> 
-                <style type="text/css"> 
-                    html { 
-                        overflow: auto; 
-                    } 
-                      
-                    html, 
-                    body, 
-                    div, 
-                    iframe { 
-                        margin: 0px; 
-                        padding: 0px; 
-                        height: 100%; 
-                        border: none; 
-                    } 
-                      
-                    iframe { 
-                        display: block; 
-                        width: 100%; 
-                        border: none; 
-                        overflow-y: auto; 
-                        overflow-x: hidden; 
-                    } 
-                </style> 
-            </head> 
-              
-            <body> 
-                <iframe src=${renderURL}
-                        frameborder="0" 
-                        marginheight="0" 
-                        marginwidth="0" 
-                        width="100%" 
-                        height="100%" 
-                        scrolling="auto"
-                        id="mountPoint"> 
-              </iframe> 
-              
-            </body> 
-              
-            </html> `;
-  }
-
-  // OpenPolusRender prompts the user to enter both overlay, local, and to use local or online render
-  let customRender = vscode.commands.registerCommand(
-    "polus-render.openPolusRender",
-    async (ctx) => {
-
-      let imageLocation = await promptImage();
-      if (imageLocation === undefined) {
-        return;
-      }
-
-      let overlayLocation = await promptOverlay();
-      if (overlayLocation === undefined) {
-        return;
-      }
-
-      let renderType = await promptRenderType();
-      if (renderType === undefined){
-        return;
-      }
-      await buildRunRender(imageLocation, overlayLocation, renderType, context);
-    },
-  );
-
   async function withOverlay(ctx: any){
+    // TODO
     return
   }
+
   /**
    * User selected .zarr or .tif command action
    * @param ctx obtained from vscode command on .zarr or .tif context menus
-   * @returns
    */
   async function withImage(ctx: any) {
     // Normalize path
     let path = ctx.fsPath.replace(/\\/g, '/');
+
     // path must be specified
     if (path === undefined) {
       return;
@@ -332,11 +287,14 @@ export function activate(context: vscode.ExtensionContext) {
       console.log("broken up: " + path)
     }
 
+    // Convert to interface
     if (isUrl(path)) {
       path = { url: path };
     } else {
       path = { path: path };
     }
+
+    // Get overlay
     let overlayLocation;
     if (!vscode.workspace.getConfiguration("prompt.overlay").get("disable")) {
       overlayLocation = await promptOverlay();
@@ -373,8 +331,8 @@ export function activate(context: vscode.ExtensionContext) {
     await buildRunRender(path, overlayLocation, renderType, context);
   }
 
-  // openZarr is a function which prompts the user to select between local/online render then opens
-  // render with provided zarr file
+
+  // VSCode extension commands --------------------------------------------------
   let openZarr = vscode.commands.registerCommand(
     "polus-render.openZarr",
     async (ctx) => {
@@ -382,7 +340,6 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
-  // openTif is the same as openZarr. Used b/c each command can only have 1 prompt
   let openTif = vscode.commands.registerCommand(
     "polus-render.openTif",
     async (ctx) => {
@@ -396,22 +353,45 @@ export function activate(context: vscode.ExtensionContext) {
       withOverlay(ctx)
     }
   )
+
+    let customRender = vscode.commands.registerCommand(
+      "polus-render.openPolusRender",
+      async (ctx) => {
+  
+        let imageLocation = await promptImage();
+        if (imageLocation === undefined) {
+          return;
+        }
+  
+        let overlayLocation = await promptOverlay();
+        if (overlayLocation === undefined) {
+          return;
+        }
+  
+        let renderType = await promptRenderType();
+        if (renderType === undefined){
+          return;
+        }
+        await buildRunRender(imageLocation, overlayLocation, renderType, context);
+      },
+    );
+
   context.subscriptions.push(customRender, openZarr, openTif, openJson);
 
-  // create a new status bar item that we can now manage
+  /* Status bar icon */
 	let RenderItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	RenderItem.command = "polus-render.openPolusRender";
-  RenderItem.text = "$(run) Polus Render"
+  RenderItem.text = "$(run) Polus Render"  /* No clear way for custom icons - https://github.com/microsoft/vscode/issues/72244 */
   RenderItem.tooltip = "Open Polus Render"
   context.subscriptions.push(RenderItem)
 
   RenderItem.show();
 }
 
-// This method is called when your extension is deactivated
+
 export function deactivate() {
+  // Kill ports occupied by extension
   portsInUse.forEach((port)=>{
-    //kill(port)
     exec(`kill $(lsof -t -i:${port})`, async function(err, stdout, stderr) {
       console.log(stdout)
     });
