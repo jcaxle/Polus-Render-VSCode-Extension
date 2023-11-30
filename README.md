@@ -71,6 +71,11 @@ Polus Render VSCode Extension is bundled with a static build of Polus Render.
 |----------------|---------------|---------------|----------------|-----------|-----|
 | Local | ✔️  | ✔️ | ✔️ | ❌ | ❌
 
+# Updating Static Render
+- Remove all existing files in `~/src/apps/render-ui/`. 
+- Run `npx nx build render-ui` in the root of your Polus Render folder.
+- Transfer generated files from `~/Polus Render/dist/apps/render-ui/` into `~/src/apps/render-ui/`. 
+
 # Prompt Navigation
 ## Image Prompt
 <img src="README assets/image_prompt.png" style="display: block; margin-left: auto; margin-right: auto; width: 100%;"/>
